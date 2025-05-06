@@ -1,0 +1,149 @@
+<svg viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="uiGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a5b4fc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#818cf8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="modelGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="serviceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#bae6fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7dd3fc;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dataGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#dbeafe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="containerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f0f9ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="llmGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#bbf7d0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#86efac;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="900" fill="white" />
+  
+  <!-- Title -->
+  <text x="600" y="50" font-family="Arial, sans-serif" font-size="36" font-weight="bold" text-anchor="middle" fill="#111827">AgentFlow Architecture</text>
+  <text x="600" y="90" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="#374151">Retrieval-Augmented Intelligent Work Allocation &amp; Dynamic AI-Talent Pairing Platform</text>
+
+  <!-- UI Layer -->
+  <rect x="50" y="140" width="1100" height="120" rx="10" ry="10" fill="#f0f9ff" stroke="#1e40af" stroke-width="2" />
+  <text x="600" y="170" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#1e40af">UI Layer</text>
+
+  <rect x="130" y="190" width="280" height="50" rx="8" ry="8" fill="url(#uiGradient)" stroke="#1e40af" stroke-width="1" />
+  <text x="270" y="223" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#1e3a8a">Kanban Dashboard (React)</text>
+
+  <rect x="460" y="190" width="280" height="50" rx="8" ry="8" fill="url(#uiGradient)" stroke="#1e40af" stroke-width="1" />
+  <text x="600" y="223" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#1e3a8a">Task Management UI</text>
+
+  <rect x="790" y="190" width="280" height="50" rx="8" ry="8" fill="url(#uiGradient)" stroke="#1e40af" stroke-width="1" />
+  <text x="930" y="223" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#1e3a8a">Project Brief Upload</text>
+
+  <!-- LLM Service Layer -->
+  <rect x="50" y="290" width="650" height="120" rx="10" ry="10" fill="#f0f9ff" stroke="#1e40af" stroke-width="2" />
+  <text x="375" y="320" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#1e40af">LLM Service Layer</text>
+
+  <rect x="90" y="340" width="180" height="50" rx="8" ry="8" fill="url(#modelGradient)" stroke="#1e40af" stroke-width="1" />
+  <text x="180" y="373" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#ffffff">Ollama</text>
+
+  <rect x="290" y="340" width="180" height="50" rx="8" ry="8" fill="url(#modelGradient)" stroke="#1e40af" stroke-width="1" />
+  <text x="380" y="373" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#ffffff">Meta Llama-3-8B</text>
+
+  <rect x="490" y="340" width="180" height="50" rx="8" ry="8" fill="url(#modelGradient)" stroke="#1e40af" stroke-width="1" />
+  <text x="580" y="373" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#ffffff">OpenAI Compatible</text>
+
+  <!-- Human Layer -->
+  <rect x="730" y="290" width="420" height="120" rx="10" ry="10" fill="#f0f9ff" stroke="#15803d" stroke-width="2" />
+  <text x="940" y="320" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#15803d">Human Layer</text>
+
+  <rect x="770" y="340" width="150" height="50" rx="8" ry="8" fill="url(#llmGradient)" stroke="#15803d" stroke-width="1" />
+  <text x="845" y="373" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#166534">Experts</text>
+
+  <rect x="960" y="340" width="150" height="50" rx="8" ry="8" fill="url(#llmGradient)" stroke="#15803d" stroke-width="1" />
+  <text x="1035" y="373" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#166534">Reviewers</text>
+
+  <!-- Service Layer -->
+  <rect x="50" y="440" width="1100" height="200" rx="10" ry="10" fill="#f0f9ff" stroke="#0c4a6e" stroke-width="2" />
+  <text x="600" y="470" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#0c4a6e">Service Layer</text>
+
+  <rect x="90" y="500" width="180" height="120" rx="8" ry="8" fill="url(#serviceGradient)" stroke="#0c4a6e" stroke-width="1" />
+  <text x="180" y="525" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0c4a6e">Task Analyzer</text>
+  <text x="180" y="550" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Project brief parsing</text>
+  <text x="180" y="575" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Task decomposition</text>
+  <text x="180" y="600" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Dependencies mapping</text>
+
+  <rect x="300" y="500" width="180" height="120" rx="8" ry="8" fill="url(#serviceGradient)" stroke="#0c4a6e" stroke-width="1" />
+  <text x="390" y="525" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0c4a6e">Router</text>
+  <text x="390" y="550" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- AI vs Human decision</text>
+  <text x="390" y="575" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Resource allocation</text>
+  <text x="390" y="600" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Worker assignment</text>
+
+  <rect x="510" y="500" width="180" height="120" rx="8" ry="8" fill="url(#serviceGradient)" stroke="#0c4a6e" stroke-width="1" />
+  <text x="600" y="525" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0c4a6e">Orchestrator</text>
+  <text x="600" y="550" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Task scheduling</text>
+  <text x="600" y="575" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Handoff management</text>
+  <text x="600" y="600" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Status tracking</text>
+
+  <rect x="720" y="500" width="180" height="120" rx="8" ry="8" fill="url(#serviceGradient)" stroke="#0c4a6e" stroke-width="1" />
+  <text x="810" y="525" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0c4a6e">RAG System</text>
+  <text x="810" y="550" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Document indexing</text>
+  <text x="810" y="575" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Context retrieval</text>
+  <text x="810" y="600" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- Prompt enrichment</text>
+
+  <rect x="930" y="500" width="180" height="120" rx="8" ry="8" fill="url(#serviceGradient)" stroke="#0c4a6e" stroke-width="1" />
+  <text x="1020" y="525" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0c4a6e">API</text>
+  <text x="1020" y="550" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- FastAPI</text>
+  <text x="1020" y="575" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- WebSockets</text>
+  <text x="1020" y="600" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0c4a6e">- CORS middleware</text>
+
+  <!-- Data Layer -->
+  <rect x="50" y="670" width="1100" height="120" rx="10" ry="10" fill="#f0f9ff" stroke="#1e3a8a" stroke-width="2" />
+  <text x="600" y="700" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#1e3a8a">Data Layer</text>
+
+  <rect x="130" y="720" width="300" height="50" rx="8" ry="8" fill="url(#dataGradient)" stroke="#1e3a8a" stroke-width="1" />
+  <text x="280" y="753" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#1e3a8a">Task Queue (Async)</text>
+
+  <rect x="450" y="720" width="300" height="50" rx="8" ry="8" fill="url(#dataGradient)" stroke="#1e3a8a" stroke-width="1" />
+  <text x="600" y="753" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#1e3a8a">ChromaDB (Vector Store)</text>
+
+  <rect x="770" y="720" width="300" height="50" rx="8" ry="8" fill="url(#dataGradient)" stroke="#1e3a8a" stroke-width="1" />
+  <text x="920" y="753" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#1e3a8a">Document Storage</text>
+
+  <!-- Connection lines -->
+  <!-- UI to Service -->
+  <line x1="180" y1="240" x2="180" y2="500" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="600" y1="240" x2="600" y2="500" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+  <line x1="930" y1="240" x2="810" y2="500" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" />
+  
+  <!-- LLM to Service -->
+  <line x1="180" y1="390" x2="180" y2="500" stroke="#94a3b8" stroke-width="2" />
+  <line x1="380" y1="390" x2="390" y2="500" stroke="#94a3b8" stroke-width="2" />
+  <line x1="580" y1="390" x2="600" y2="500" stroke="#94a3b8" stroke-width="2" />
+  
+  <!-- Human to Service -->
+  <line x1="845" y1="390" x2="810" y2="500" stroke="#94a3b8" stroke-width="2" />
+  <line x1="1035" y1="390" x2="1020" y2="500" stroke="#94a3b8" stroke-width="2" />
+  
+  <!-- Service to Data -->
+  <line x1="180" y1="620" x2="280" y2="720" stroke="#94a3b8" stroke-width="2" />
+  <line x1="390" y1="620" x2="280" y2="720" stroke="#94a3b8" stroke-width="2" />
+  <line x1="600" y1="620" x2="600" y2="720" stroke="#94a3b8" stroke-width="2" />
+  <line x1="810" y1="620" x2="600" y2="720" stroke="#94a3b8" stroke-width="2" />
+  <line x1="810" y1="620" x2="920" y2="720" stroke="#94a3b8" stroke-width="2" />
+  
+  <!-- Service Flow -->
+  <polygon points="280,560 295,560 295,550 310,565 295,580 295,570 280,570" fill="#475569" />
+  <polygon points="490,560 505,560 505,550 520,565 505,580 505,570 490,570" fill="#475569" />
+  <polygon points="700,560 715,560 715,550 730,565 715,580 715,570 700,570" fill="#475569" />
+  <polygon points="910,560 925,560 925,550 940,565 925,580 925,570 910,570" fill="#475569" />
+  
+  <!-- Copyright -->
+  <text x="600" y="830" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#64748b">© AgentFlow Architecture - 2025</text>
+</svg>
