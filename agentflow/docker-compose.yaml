@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./backend
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+    environment:
+      - RUNPOD_API_KEY=${RUNPOD_API_KEY}
+      - RUNPOD_BASE_URL=${RUNPOD_BASE_URL}
+      - MODEL_NAME=${MODEL_NAME}
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+
+  frontend:
+    platform: linux/amd64 
+    build: ./frontend
+    command: ["npm","run","preview","--","--port","4173","--host"]
+    depends_on:
+      - backend
+    ports:
+      - "4173:4173"
+  
