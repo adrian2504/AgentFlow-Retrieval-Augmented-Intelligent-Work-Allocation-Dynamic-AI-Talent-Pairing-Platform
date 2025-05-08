@@ -1,14 +1,20 @@
+volumes:
+  db_data:
 services:
   backend:
     build: ./backend
+    env_file:
+    - ./backend/.env
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
     environment:
-      - RUNPOD_API_KEY=${RUNPOD_API_KEY}
-      - RUNPOD_BASE_URL=${RUNPOD_BASE_URL}
-      - MODEL_NAME=${MODEL_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - MODEL_NAME=${MODEL_NAME:-meta-llama/Meta-Llama-3-8B-Instruct}
       - PYTHONUNBUFFERED=1
     ports:
       - "8000:8000"
+    volumes:
+      - db_data:/app/db  
 
   frontend:
     platform: linux/amd64 

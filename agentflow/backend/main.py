@@ -10,7 +10,20 @@ from .orchestrator import worker
 load_dotenv()
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+ALLOWED_ORIGINS = [
+    "http://localhost:4173",   # vite preview
+    "http://127.0.0.1:4173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS + ["*"],  # keep "*" for dev; drop for prod
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 queue: asyncio.Queue[Task] = asyncio.Queue()
 clients: set[WebSocket] = set()

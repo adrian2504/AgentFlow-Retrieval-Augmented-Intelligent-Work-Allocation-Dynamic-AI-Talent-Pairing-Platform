@@ -1,15 +1,17 @@
 FROM node:20-bullseye-slim
 WORKDIR /app
 
-# ---------- copy source ----------
+COPY package.json ./
+
+# single install; --omit=optional skips native rollup binaries
+RUN npm install --omit=optional
+
+# force pure‑JS rollup and remove any native folders
+RUN npm install --save-dev rollup@4 \
+ && find node_modules -type d -name "@rollup" -path "*-linux-*-*" -prune -exec rm -rf {} +
+
+RUN npm rebuild esbuild
 COPY . .
-
-# ---------- install (with a bug‑free npm) ----------
-RUN npm install -g npm@11.3.0  \   
- && npm ci --no-audit --no-fund \
- && npm rebuild esbuild
-
-# ---------- build ----------
 RUN npm run build
 
 EXPOSE 4173
