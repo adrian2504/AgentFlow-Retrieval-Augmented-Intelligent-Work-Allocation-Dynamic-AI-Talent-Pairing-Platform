@@ -1,15 +1,19 @@
-import { useCallback, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// src/App.tsx  – fixed matching parentheses & cleaner file-picker logic
+
+import { useCallback, useRef, useState } from "react";
 import { Loader2, Bot, User2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import cn from "classnames";
 
 import { useTasks } from "./hooks/useTasks";
+import { Button } from "./components/ui/button";
+import { Card, CardContent } from "./components/ui/card";
 import type { Task } from "./types";
 
 export default function App() {
   const { tasks, connected } = useTasks();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const byStatus = useCallback(
@@ -17,19 +21,23 @@ export default function App() {
     [tasks]
   );
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.[0]) return;
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setSelectedFile(file);
+  }
+
+  async function handleUpload() {
+    if (!selectedFile) return;
     setUploading(true);
-
     const fd = new FormData();
-    fd.append("file", e.target.files[0]);
-
+    fd.append("file", selectedFile);
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL ?? "http://localhost:8000/projects",
         { method: "POST", body: fd }
       );
       if (!res.ok) throw new Error(await res.text());
+      setSelectedFile(null);
     } catch (err: any) {
       alert("Upload failed: " + err.message);
     } finally {
@@ -37,22 +45,13 @@ export default function App() {
     }
   }
 
-  const Column = ({
-    status,
-    label,
-  }: {
-    status: Task["status"];
-    label: string;
-  }) => (
-    <div className="flex-1 min-w-[280px] p-2">
-      <h2 className="mb-2 flex items-center gap-2 text-xl font-semibold">
+  const Column = ({ status, label }: { status: Task["status"]; label: string }) => (
+    <div className="flex-shrink-0 w-80 flex flex-col glass rounded-2xl p-4 shadow-lg">
+      <h2 className="mb-4 flex items-center justify-between text-lg font-semibold">
         {label}
-        {status === "in_progress" && (
-          <Loader2 className="animate-spin" size={18} />
-        )}
+        {status === "in_progress" && <Loader2 className="animate-spin text-blue-500" size={18} />}
       </h2>
-
-      <div className="space-y-2">
+      <div className="flex-1 space-y-4 overflow-y-auto pr-1">
         <AnimatePresence>
           {byStatus(status).map((task) => (
             <motion.div
@@ -64,32 +63,28 @@ export default function App() {
             >
               <Card
                 className={cn(
-                  "border-2",
-                  task.routedTo === "ai"
-                    ? "border-blue-400"
-                    : "border-emerald-400"
+                  "glass border border-white/30 shadow-md overflow-hidden",
+                  task.routedTo === "ai" ? "border-blue-400" : "border-emerald-400"
                 )}
               >
-                <CardContent className="flex flex-col gap-3 p-3">
+                <CardContent className="p-4 space-y-3">
                   <div className="flex items-start gap-3">
                     {task.routedTo === "ai" ? (
-                      <Bot size={20} />
+                      <Bot size={20} className="text-blue-600" />
                     ) : (
-                      <User2 size={20} />
+                      <User2 size={20} className="text-emerald-600" />
                     )}
                     <div className="flex-1">
-                      <p className="line-clamp-2 font-medium leading-tight">
+                      <p className="font-medium line-clamp-2 leading-tight">
                         {task.title}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {task.routedTo === "ai" ? "AI Agent" : "Human"}:{" "}
-                        {task.owner ?? "—"}
+                      <p className="mt-1 text-xs text-gray-600">
+                        {task.routedTo === "ai" ? "AI Agent" : "Human"}: {task.owner ?? "—"}
                       </p>
                     </div>
                   </div>
-
                   {task.result && (
-                    <div className="whitespace-pre-wrap rounded bg-slate-50 p-2 text-sm">
+                    <div className="whitespace-pre-wrap rounded bg-white/80 p-2 text-sm text-gray-800">
                       {task.result}
                     </div>
                   )}
@@ -103,44 +98,61 @@ export default function App() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      {/* ── header ─────────────────────────────────────────────── */}
-      <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">AgentFlow Demo</h1>
-
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 p-6">
+      {/* Header */}
+      <header className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">AgentFlow Demo</h1>
+        <div className="flex items-center gap-4">
+          {/* hidden native input */}
           <input
-            id="file"
+            ref={fileInputRef}
             type="file"
-            className="hidden"
             accept=".txt,.md,.pdf"
-            onChange={handleUpload}
+            className="hidden"
+            onChange={handleFileChange}
           />
-          <label htmlFor="file">
-            <Button variant="secondary" disabled={uploading}>
-              {uploading ? "Uploading…" : "Upload Project Spec"}
-            </Button>
-          </label>
 
-          {/* connection indicator */}
+          {/* choose btn triggers click on hidden input */}
+          <Button
+            variant="secondary"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Choose File
+          </Button>
+
+          <span className="text-sm text-gray-700 max-w-[10rem] truncate">
+            {selectedFile?.name ?? "No file chosen"}
+          </span>
+
+          {/* upload btn */}
+          <Button
+            variant="primary"
+            onClick={handleUpload}
+            disabled={!selectedFile || uploading}
+          >
+            {uploading ? "Uploading…" : "Upload Spec"}
+          </Button>
+
+          {/* websocket status dot */}
           <span
             className={cn(
-              "h-3 w-3 rounded-full",
+              "h-4 w-4 rounded-full",
               connected ? "bg-emerald-500" : "bg-red-400"
             )}
-            title={connected ? "WebSocket connected" : "Disconnected"}
+            title={connected ? "Connected" : "Disconnected"}
           />
         </div>
       </header>
 
-      {/* ── board ──────────────────────────────────────────────── */}
-      <div className="grid flex-1 grid-cols-3 gap-4 overflow-auto">
+      {/* Board */}
+      <div className="flex flex-row flex-1 gap-6 overflow-x-auto pb-4">
         <Column status="queued" label="Queued" />
         <Column status="in_progress" label="In Progress" />
         <Column status="done" label="Done" />
       </div>
 
-      <footer className="mt-4 text-center text-xs text-muted-foreground">
+      {/* Footer */}
+      <footer className="mt-6 text-center text-sm text-gray-500">
         Demo – AI ↔ Human orchestration
       </footer>
     </div>
