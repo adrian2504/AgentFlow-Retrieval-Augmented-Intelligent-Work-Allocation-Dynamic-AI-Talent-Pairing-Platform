@@ -1,4 +1,7 @@
 agentflow/backend/.env
 agentflow/backend/.env.*
 agentflow/backend/.env.example
+agentflow/.env
 frontend/node_modules/
+frontend/.env
+.env
