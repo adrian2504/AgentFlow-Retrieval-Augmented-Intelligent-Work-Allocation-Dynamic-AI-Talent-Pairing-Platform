@@ -1,113 +1,138 @@
+# backend/task_analyzer.py
+
 from __future__ import annotations
-
+import asyncio
 import json
-import os
-import uuid
 import logging
-from typing import List
-
-from fastapi import HTTPException, status
+import os
+import re
+import uuid
+from typing import Any, List
 
 from .models import Task
 from .openai_client import get_client
 
 log = logging.getLogger(__name__)
 
-MODEL_NAME = os.getenv("MODEL_NAME", "meta-llama-3")
-client = get_client()
+MODEL_NAME = os.getenv("MODEL_NAME", "meta-llama/Meta-Llama-3-8B-Instruct")
 
-# --------------------------------------------------------------------------- #
-# Prompt template                                                             #
-# --------------------------------------------------------------------------- #
-PROMPT = """
-You are a senior project manager. Split the project brief into the SMALLEST
-independent work items.
+def _make_prompt(spec: str) -> str:
+    """
+    Build a prompt that embeds the raw spec literally, without
+    confusing Python's formatter for {placeholders}.
+    Any literal braces in the example JSON must be doubled.
+    """
+    return f"""
+You are the orchestration lead on a hybrid‑talent delivery team.
+Given a *single* project brief, output **ONLY** a top‑level JSON array of objects
+describing the atomic work units and who should own them.
 
-Return ONLY valid JSON in **this exact shape**:
+Example of exactly what to output (no extra keys, no markdown):
 
-[
-  {{"title": "Write project README", "routed_to": "ai"}},
-  {{"title": "Implement FastAPI auth", "routed_to": "human"}}
-]
+[{{  
+  "title": "Draft architecture diagram",  
+  "routed_to": "ai",  
+  "why": "Image models can generate diagrams quickly"  
+}}, {{  
+  "title": "Validate architecture with security team",  
+  "routed_to": "human",  
+  "why": "Requires domain-specific governance knowledge"  
+}}]
 
-• title: short action phrase
-• routed_to: "ai" or "human"
-DO NOT wrap the JSON in triple back‑ticks.
-Project brief:
+Rules
+1. Break the project into the **smallest independent tasks** that can run in parallel.
+2. For each task choose:
+   • "ai"    when an LLM/automation can complete it to spec  
+   • "human" when human expertise or approval is required
+3. Add a short "why" (5–15 words) explaining your choice if you can.
+4. The entire reply **MUST** be exactly a JSON array. No wrapper objects. No prose.
+
+Project brief (do not include in your output):
 \"\"\"{spec}\"\"\"
-"""
+""".strip()
 
+_client = get_client()
 
-# --------------------------------------------------------------------------- #
-# Helpers                                                                     #
-# --------------------------------------------------------------------------- #
-def _sanitize(item: dict) -> dict[str, str]:
-    """Strip stray quotes/spaces and lowercase the `routed_to` value."""
-    if not isinstance(item, dict):
-        return {}
-    return {
-        k.strip(' "\''): str(v).strip(' "\'').lower() for k, v in item.items()
-    }
+# ── helpers ─────────────────────────────────────────────────────────────────
 
+fence_re = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.S)
 
-def _make_task(project_id: str, d: dict) -> Task:
-    """Convert a clean dict to our Task dataclass."""
-    return Task(
-        id=str(uuid.uuid4()),
-        project_id=project_id,
-        title=d["title"],
-        routed_to=d["routed_to"],
-        owner="LLM‑Llama‑3" if d["routed_to"] == "ai" else None,
-    )
+def _strip_fences(txt: str) -> str:
+    m = fence_re.search(txt)
+    return m.group(1).strip() if m else txt.strip()
 
+def _sanitize_field(val: Any) -> str:
+    return str(val).strip(' "\'')
 
-# --------------------------------------------------------------------------- #
-# Public entry‑point                                                          #
-# --------------------------------------------------------------------------- #
-async def analyze(project_id: str, spec: str) -> List[Task]:
+def _parse_tasks(raw: Any) -> List[dict]:
     """
-    Call the LLM and turn its JSON reply into a list[Task].
-
-    Raises HTTPException(422) if the model can't give reasonable output.
+    Accept:
+      - list of dicts
+      - { tasks: [ ... ] }
+      - single dict
     """
-    log.info("Analyzing brief for project %s …", project_id)
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        if "tasks" in raw and isinstance(raw["tasks"], list):
+            return raw["tasks"]
+        if {"title", "routed_to"} <= raw.keys():
+            return [raw]
+    return []
 
-    rsp = await client.chat.completions.create(
+# ── main API ────────────────────────────────────────────────────────────────
+
+async def analyze(project_id: str, spec: str) -> tuple[list[dict], List[Task]]:
+    # 1. build prompt & call LLM
+    prompt = _make_prompt(spec)
+    rsp = await asyncio.to_thread(
+        _client.chat.completions.create,
         model=MODEL_NAME,
-        messages=[{"role": "user", "content": PROMPT.format(spec=spec)}],
-        temperature=0.2,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1,
         max_tokens=512,
     )
+    raw_text = _strip_fences(rsp.choices[0].message.content)
 
-    raw = rsp.choices[0].message.content
-    log.debug("LLM raw reply: %s", raw)
+    # debug: show exactly what we got
+    log.debug("⚡ RAW LLM reply: %s", raw_text.replace('\n', ' ⏎ '))
+    log.debug("⚡ JSON payload candidate: %r", raw_text)
 
-    # 1) Parse JSON safely
+    # 2. parse JSON
     try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        log.error("Bad JSON from LLM: %s", exc)
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="LLM returned invalid JSON",
-        ) from exc
+        raw_json = json.loads(raw_text)
+    except json.JSONDecodeError as err:
+        log.error("❌ Failed to JSON‑parse LLM reply:\n%s", raw_text)
+        raise RuntimeError(f"LLM returned invalid JSON:\n{raw_text}") from err
 
-    # 2) Sanitize + validate each item
-    cleaned = []
-    for item in data:
-        item = _sanitize(item)
-        if {"title", "routed_to"} <= item.keys() and item["routed_to"] in {"ai", "human"}:
-            cleaned.append(item)
-        else:
-            log.warning("Skipping malformed task item: %s", item)
+    log.debug("⚡ Parsed JSON object: %s", raw_json)
 
-    if not cleaned:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="No valid tasks extracted from LLM output",
-        )
+    # 3. extract task dicts
+    dicts = _parse_tasks(raw_json)
+    log.debug("⚡ _parse_tasks yielded %d items: %s", len(dicts), dicts)
 
-    # 3) Build Task objects
-    tasks = [_make_task(project_id, d) for d in cleaned]
-    log.info("Analyzer produced %d tasks for project %s", len(tasks), project_id)
-    return tasks
+    tasks: List[Task] = []
+    for d in dicts:
+        if not isinstance(d, dict):
+            continue
+        title = _sanitize_field(d.get("title", ""))
+        routed = _sanitize_field(d.get("routed_to", "")).lower()
+        why    = _sanitize_field(d.get("why", "")) or None
+
+        if not title or routed not in {"ai", "human"}:
+            log.warning("Skipping malformed item: %s", d)
+            continue
+
+        tasks.append(Task(
+            id=str(uuid.uuid4()),
+            project_id=project_id,
+            title=title,
+            routed_to=routed,
+            why=why,
+            owner="LLM-Llama-3" if routed == "ai" else None,
+        ))
+
+    if not tasks:
+        raise RuntimeError("No valid tasks found in LLM output")
+
+    return dicts, tasks

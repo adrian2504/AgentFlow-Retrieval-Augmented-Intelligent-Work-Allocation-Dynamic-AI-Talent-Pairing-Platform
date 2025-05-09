@@ -1,6 +1,14 @@
 fastapi~=0.111
 uvicorn[standard]~=0.29
 openai~=1.23
-chromadb~=0.5
+langchain~=0.1.14          # <- NEW
+langchain-openai~=0.1 
+faiss-cpu~=1.8       
 python-dotenv~=1.0
 python-multipart~=0.0.9
+sqlmodel~=0.0.18
+asyncpg~=0.29
+psycopg2-binary~=2.9   
+tiktoken~=0.6  
+sentence-transformers~=2.6
+requests~=2.32
