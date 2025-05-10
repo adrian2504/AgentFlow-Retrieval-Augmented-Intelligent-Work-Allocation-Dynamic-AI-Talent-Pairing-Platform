@@ -1,10 +1,5 @@
 # backend/orchestrator.py
-"""Background worker that executes tasks.
 
-* AI‑owned tasks call the chat endpoint (blocking HTTP) in a worker thread.
-* Human‑owned tasks are simulated with a sleep.
-* Every status change is broadcast over the WebSocket manager passed in.
-"""
 from __future__ import annotations
 
 import asyncio

@@ -1,9 +1,5 @@
-# ------------------------------ rag.py -------------------------------------
-"""
-RAG helper that builds a FAISS index using a **separate embeddings endpoint**.
-Chat ↔ `RUNPOD_CHAT_URL` (via openai_client.py)
-Embeddings ↔ `RUNPOD_EMBED_URL/openai/v1/embeddings`
-"""
+# rag.py
+
 from __future__ import annotations
 
 from pathlib import Path

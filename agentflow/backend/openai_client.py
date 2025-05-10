@@ -1,8 +1,5 @@
-"""
-Thin wrapper for your **chat‑only** RunPod endpoint (OpenAI‑compatible).
-Embeddings are handled by a separate endpoint, so they are **not** included
-here.
-"""
+# openai_client.py
+
 import json
 import os
 import requests
